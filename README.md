@@ -1,11 +1,11 @@
-# GYRS — Static Preview Site (Vercel)
+# GYRS — Website (live site at repo root)
 
 Stitch UI prototype: Home + Jobs Listing + Job Detail. Pure static HTML.
 
 ## Preview locally
 
 ```bash
-cd gyrs-site
+cd .
 python3 -m http.server 8000
 # open http://localhost:8000
 ```
@@ -21,7 +21,7 @@ python3 -m http.server 8000
 ### Option B — Vercel CLI
 ```bash
 npm i -g vercel
-cd gyrs-site
+cd .
 vercel        # preview deploy
 vercel --prod # production deploy
 ```

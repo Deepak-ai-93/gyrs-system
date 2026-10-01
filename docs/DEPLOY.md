@@ -6,7 +6,7 @@
 2. Click **Import** next to `Deepak-ai-93/gyrs-system`.
    - If the repo is not listed, click **Adjust GitHub App Permissions** and give access.
 3. In **Configure Project**, set exactly this:
-   - **Root Directory:** `gyrs-site` ← click Edit and select it (most important step)
+   - **Root Directory:** leave EMPTY (site files are at repo root)
    - **Framework Preset:** `Other`
    - **Build Command:** (leave empty)
    - **Output Directory:** (leave empty — defaults to `.`)
@@ -32,8 +32,7 @@ git commit -m "update site"
 git push
 ```
 
-## If you see 404 on `/jobs`
+## If you still see 404
 
-Root Directory is not set to `gyrs-site`. Fix: Vercel project →
-Settings → General → Root Directory → `gyrs-site` → Save → redeploy
+A Root Directory may still be set from before. Fix: Vercel project → Settings → General → Root Directory → clear it (empty) → Save → redeploy
 (Redeploy: Deployments tab → ⋯ → Redeploy).
