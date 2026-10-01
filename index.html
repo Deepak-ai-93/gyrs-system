@@ -974,6 +974,7 @@ document.querySelectorAll('span').forEach(function(sp){
       if (!m) {
         m = document.createElement("div"); m.id = "gyrsProfileMenu"; m.style.cssText = panelCss;
         document.body.appendChild(m);
+        var _cb = document.getElementById("gyrsMenuClose"); if (_cb) _cb.addEventListener("click", function(){ m.style.display = "none"; });
       }
       var waOn = store.get("gyrs_wa", "0") === "1", emOn = store.get("gyrs_em", "0") === "1";
       m.innerHTML = '<p style="font-size:12px;font-weight:700;color:#475569;padding:8px 12px 4px;">ALERT PREFERENCES</p>' +
@@ -992,7 +993,7 @@ document.querySelectorAll('span').forEach(function(sp){
   if (headerActions && !document.getElementById("gyrsBurger")) {
     var burger = document.createElement("button");
     burger.id = "gyrsBurger"; burger.type = "button"; burger.setAttribute("aria-label", "Open menu");
-    burger.className = "xl:hidden";
+    var bst = document.createElement("style"); bst.textContent = "#gyrsBurger{display:none;}@media (max-width:1279.5px){#gyrsBurger{display:block !important;}}"; document.head.appendChild(bst);
     burger.style.cssText = "padding:10px;min-width:44px;min-height:44px;font-size:22px;line-height:1;background:none;border:none;cursor:pointer;";
     burger.textContent = "\u2630";
     headerActions.appendChild(burger);
@@ -1001,12 +1002,13 @@ document.querySelectorAll('span').forEach(function(sp){
       var m = document.getElementById("gyrsMobileMenu");
       if (!m) {
         m = document.createElement("div"); m.id = "gyrsMobileMenu";
-        m.style.cssText = "position:fixed;top:116px;left:0;right:0;background:#fff;border-bottom:1px solid #E2E8F0;z-index:9997;padding:8px 16px 16px;display:none;";
-        m.innerHTML = [["Home","/"],["All Jobs","/jobs/"],["Results (OJAS)","https://ojas.gujarat.gov.in"],["Syllabus","/job-detail/"],["FAQ","/#gyrs-faq"]].map(function(l){
+        var _hdr = document.querySelector("header"); var _top = _hdr ? Math.round(_hdr.getBoundingClientRect().bottom) : 116; m.style.cssText = "position:fixed;top:" + _top + "px;left:0;right:0;background:#fff;border-bottom:1px solid #E2E8F0;z-index:9997;padding:8px 16px 16px;display:none;max-height:70vh;overflow:auto;";
+        m.innerHTML = '<button id="gyrsMenuClose" style="display:block;width:100%;text-align:right;padding:8px 4px;font-weight:700;color:#475569;min-height:44px;background:none;border:none;font-size:16px;">\u2715 Close</button>' + [["Home","/"],["All Jobs","/jobs/"],["Results (OJAS)","https://ojas.gujarat.gov.in"],["Syllabus","/job-detail/"],["FAQ","/#gyrs-faq"]].map(function(l){
           var ext = l[1].indexOf("http") === 0;
           return '<a href="' + l[1] + '"' + (ext ? ' target="_blank" rel="noopener"' : '') + ' style="display:block;padding:12px 4px;font-weight:700;color:#0F172A;border-bottom:1px solid #F1F5F9;text-decoration:none;min-height:44px;">' + l[0] + (ext ? " \u2197" : "") + "</a>";
         }).join("");
         document.body.appendChild(m);
+        var _cb = document.getElementById("gyrsMenuClose"); if (_cb) _cb.addEventListener("click", function(){ m.style.display = "none"; });
       }
       m.style.display = m.style.display === "none" ? "block" : "none";
     });
