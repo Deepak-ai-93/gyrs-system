@@ -138,13 +138,43 @@ def build_pdf(shots):
       .about {{ margin-top: 8px; font-size: 10px; line-height: 1.5; color: #334155; background: #F8FAFC; border-left: 3px solid #00288E; border-radius: 6px; padding: 7px 10px; }}
       .ux {{ margin-top: 6px; font-size: 10px; line-height: 1.5; color: #334155; background: #FFF7ED; border-left: 3px solid #FD761A; border-radius: 6px; padding: 7px 10px; }}
       .doc-footer {{ margin-top: auto; border-top: 1px solid #E2E8F0; padding-top: 6px; display: flex; justify-content: space-between; font-size: 9px; color: #64748B; }}
+      .lede {{ font-size: 10.5px; color: #475569; line-height: 1.5; margin-bottom: 8px; }}
+      .skel {{ background: #F8FAFC; border: 1px dashed #94A3B8; border-radius: 8px; padding: 9px 11px; font-family: Consolas, monospace; font-size: 8.4px; line-height: 1.45; color: #1E293B; white-space: pre; overflow: hidden; margin-bottom: 8px; }}
       .flow {{ display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }}
       .step {{ display: flex; gap: 10px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 9px 12px; font-size: 10px; }}
       .n {{ width: 26px; height: 26px; border-radius: 50%; background: #00288E; color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }}
     </style></head><body>
-      <div class="page cover"><div class="pill">GYRS — JOB PORTAL (PANEL + CANDIDATE)</div>
-        <h1>UI/UX Screens & Explanations</h1>
-        <p>Candidate surfaces (Home, All Jobs, Job Detail with Notification & Documents tabs, Dashboard with CV matching, Skills) and the production Admin Panel (filtered dashboard, jobs, add-job form, users, applications, reports, activity log). Job portal only. Apply always opens the recruiting board's own official website.</p></div>
+      <div class="page"><div class="doc-header"><div class="brand">GYRS JOB PORTAL — BLUEPRINT</div><div class="tag">Page 01 · Layout Skeleton</div></div>
+        <h2 class="section-title">Portal Layout Skeleton</h2>
+        <p class="lede">Structural blueprint behind every screen in this document. The global shell (sticky header, content zone, footer note) is identical on candidate and admin surfaces, so navigation is never re-learned. Each page below it fills the content zone with its own blocks.</p>
+        <div class="skel">GLOBAL SHELL — used by every page
++--------------------------------------------------------------------+
+| HEADER (sticky, min-h 64px): [GYRS *] Home All-Jobs Skills .. [☰]  |
++--------------------------------------------------------------------+
+| CONTENT ZONE (max-w-6xl, white rounded-2xl cards on slate bg)       |
+|   -- page blocks plug in here, tables scroll inside cards --       |
++--------------------------------------------------------------------+
+| FOOTER NOTE: apply only on board official sites · GYRS takes       |
+| no applications and no fees                                        |
++--------------------------------------------------------------------+</div>
+        <div class="skel">HOME (/)                          | ALL JOBS (/jobs/)
+[H1 + trust pill + live count]      | [search | district | sort]
+[search: keyword|board|qualif][Go]  | sidebar: urgency/board/qualif
+[trending pills + boards strip]     | cards: badge advt deadline
+[job cards: metrics + View &amp; Apply]   | title · grid · [View &amp; Apply]
+[eligibility calc + how-it-works]   |
+DETAIL (/job-detail/?id=..)         | DASHBOARD (/dashboard/)
+[badges + H1 + match %]             | KPI row: matched/saved/applied
+[metric grid x8]                    | [profile form | CV analyser]
+[Apply official][Save][Applied]     | [match-ranked jobs][saved|done]
+[tabs: notification|docs|eligib.]   |
+SKILLS (/skills/)                   | ADMIN (/admin/)
+[card: level · time]                | sidebar: dash jobs users apps
+[unlocks: job pills] [+ Add]        | filter bar -&gt; KPI x4 -&gt; charts
+                                    | tables -&gt; add-job form -&gt; reports</div>
+        <div class="about"><b>How to read:</b> every screenshot page that follows is one of these blocks filled with real data. Nothing sits outside the shell — that is what keeps mobile free of overlaps: one sticky header with a hamburger menu, one content column, tables scrolling inside their cards.</div>
+        <div class="doc-footer"><span>GYRS Job Portal — layout skeleton</span><span>job portal only · apply on board sites</span></div>
+      </div>
       {pages}
       <div class="page"><div class="doc-header"><div class="brand">GYRS JOB PORTAL — UI/UX</div><div class="tag">End-to-end flow</div></div>
         <h2 class="section-title">How the portal flows together</h2>

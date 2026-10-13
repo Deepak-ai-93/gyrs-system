@@ -6,10 +6,12 @@
 <script>tailwind.config={theme:{extend:{colors:{primary:"#00288E",accent:"#FD761A"}}}}</script>
 <script src="/assets/js/data.js"></script>
 </head><body class="bg-slate-50 font-[Inter] text-slate-900">
-<header class="bg-white shadow-sm sticky top-0 z-50"><div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-<a href="/" class="font-extrabold text-primary text-lg font-[Plus_Jakarta_Sans]">GYRS <span class="text-accent">Dashboard</span></a>
-<nav class="flex items-center gap-4 text-sm font-semibold"><a href="/" class="hover:text-primary">Home</a><a href="/jobs/" class="hover:text-primary">All Jobs</a><a href="/skills/" class="hover:text-primary">Skills</a><button id="logoutBtn" class="px-3 py-1.5 rounded-lg bg-slate-900 text-white">Logout</button></nav>
-</div></header>
+<header class="bg-white shadow-sm sticky top-0 z-50"><div class="max-w-6xl mx-auto px-4 min-h-[4rem] py-2 flex items-center justify-between gap-2">
+<a href="/" class="font-extrabold text-primary text-lg font-[Plus_Jakarta_Sans] shrink-0 whitespace-nowrap">GYRS <span class="text-accent">Dashboard</span></a>
+<nav class="hidden md:flex items-center gap-4 text-sm font-semibold"><a href="/" class="hover:text-primary">Home</a><a href="/jobs/" class="hover:text-primary">All Jobs</a><a href="/skills/" class="hover:text-primary">Skills</a><button id="logoutBtn" class="px-3 py-1.5 rounded-lg bg-slate-900 text-white">Logout</button></nav>
+<button id="mnavBtn" class="md:hidden px-3 py-2 rounded-lg bg-slate-100 font-bold" aria-label="Menu">☰</button>
+</div><div id="mnav" class="hidden md:hidden border-t px-4 py-2 flex-col gap-1 text-sm font-semibold bg-white"><a href="/" class="py-2 border-b">Home</a><a href="/jobs/" class="py-2 border-b">All Jobs</a><a href="/skills/" class="py-2 border-b">Skills</a><button onclick="GYRS.setSession(null);location.href='/auth/';" class="text-left py-2 text-red-600 font-bold">Logout</button></div></header>
+<script>document.getElementById('mnavBtn').onclick=()=>{var m=document.getElementById('mnav');m.classList.toggle('hidden');m.classList.toggle('flex');};</script>
 <main class="max-w-6xl mx-auto px-4 py-8">
 <div id="needLogin" class="hidden bg-white rounded-2xl shadow p-8 text-center">Please <a href="/auth/" class="text-primary font-bold underline">login / register</a> to use dashboard.</div>
 <div id="dash" class="hidden flex-col gap-6">
