@@ -56,27 +56,23 @@ SHOTS = [
      "Job Detail — Notification, Documents, Eligibility",
      "Full metric grid (vacancies, qualification, salary, location, age, fees, dates), match % for logged-in users, Save / Mark-as-Applied, tabbed Notification text + PDF download, Documents checklist, and interactive age/category eligibility checker.",
      "The single source of truth per recruitment: green Apply button opens only the recruiting board's own official website in a new tab. GYRS never collects applications or fees."),
-    ("04-auth", "/auth/", None, None,
-     "Login / Register",
-     "Side-by-side candidate login and one-time registration (name, mobile, email, password, education, category, district). Demo credentials shown. Admin login auto-routes to the admin panel.",
-     "Registration captures the exact profile fields the eligibility engine and CV matching need — entered once, reused everywhere."),
-    ("05-dashboard", "/dashboard/", USER_SEED_JS, None,
+    ("04-dashboard", "/dashboard/", USER_SEED_JS, None,
      "User Dashboard — Profile, CV Match, Tracking",
      "KPI cards (matched / saved / applied / skills), editable profile, CV upload + paste-text skill analyser, CV-scored recommended jobs, saved-jobs and applied-jobs lists.",
      "Uploading a CV instantly re-scores every job by skill overlap; missing skills point the candidate to the Skills page to unlock more opportunities."),
-    ("06-skills", "/skills/", None, None,
+    ("05-skills", "/skills/", None, None,
      "Skills — Upgrade to Unlock Jobs",
      "Catalog cards (CCC, typing, ITI, nursing, GPSC prep, PET fitness, Tally+GST, Excel) each listing the recruitments they unlock, with one-click Add to my profile.",
      "Closes the loop: a locked job shows which skill unlocks it, and adding the skill immediately raises the dashboard match score."),
-    ("07-admin-dash", "/admin/", ADMIN_SEED_JS, None,
+    ("06-admin-dash", "/admin/", ADMIN_SEED_JS, None,
      "Admin — Dashboard with Filters, Charts, Reports",
      "Global search + board + status + closing-window filters driving KPI cards, vacancies-by-board and jobs-by-status charts, and a closing-soon action list with CSV export.",
      "Production control room: filter to any slice (e.g. Police + closing in 7 days) and download exactly that slice for reminder campaigns."),
-    ("08-admin-jobs", "/admin/", ADMIN_SEED_JS, '#panel aside button[data-v="jobs"]',
+    ("07-admin-jobs", "/admin/", ADMIN_SEED_JS, '#panel aside button[data-v="jobs"]',
      "Admin — Manage Jobs",
      "Searchable, status-filterable jobs table with views/clicks telemetry, status pills and per-row View / Edit / Duplicate / Status-toggle / Delete plus one-click jobs CSV export.",
      "Full lifecycle in one table: draft → publish → close, duplicate repeat recruitments, and audit performance without leaving the page."),
-    ("09-admin-add", "/admin/", ADMIN_SEED_JS, '#panel aside button[data-v="add"]',
+    ("08-admin-add", "/admin/", ADMIN_SEED_JS, '#panel aside button[data-v="add"]',
      "Admin — Add / Edit Job (All Fields)",
      "Every field a posting needs: title, board, advt no, posts, qualification, age band, salary, location, fees, start/last/exam dates, skills, notification text, documents checklist, official Apply URL, notification PDF file picker + URL, and publish status.",
      "Saving publishes instantly to Home, All Jobs and candidate dashboards; every change is written to the Activity Log."),
@@ -148,7 +144,7 @@ def build_pdf(shots):
     </style></head><body>
       <div class="page cover"><div class="pill">GYRS — JOB PORTAL (PANEL + CANDIDATE)</div>
         <h1>UI/UX Screens & Explanations</h1>
-        <p>Candidate surfaces (Home, All Jobs, Job Detail with Notification & Documents tabs, Auth, Dashboard with CV matching, Skills) and the production Admin Panel (filtered dashboard, jobs, add-job form, users, applications, reports, activity log). Job portal only. Apply always opens the recruiting board's own official website.</p></div>
+        <p>Candidate surfaces (Home, All Jobs, Job Detail with Notification & Documents tabs, Dashboard with CV matching, Skills) and the production Admin Panel (filtered dashboard, jobs, add-job form, users, applications, reports, activity log). Job portal only. Apply always opens the recruiting board's own official website.</p></div>
       {pages}
       <div class="page"><div class="doc-header"><div class="brand">GYRS JOB PORTAL — UI/UX</div><div class="tag">End-to-end flow</div></div>
         <h2 class="section-title">How the portal flows together</h2>
