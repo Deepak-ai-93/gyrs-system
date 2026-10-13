@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Skill Upgrade | GYRS</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{colors:{primary:"#00288E",accent:"#FD761A"}}}}</script>
+<script src="/assets/js/data.js"></script>
+</head><body class="bg-slate-50 font-[Inter] text-slate-900">
+<header class="bg-white shadow-sm sticky top-0 z-50"><div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+<a href="/" class="font-extrabold text-primary text-lg font-[Plus_Jakarta_Sans]">GYRS <span class="text-accent">Skills</span></a>
+<nav class="flex items-center gap-4 text-sm font-semibold"><a href="/" class="hover:text-primary">Home</a><a href="/jobs/" class="hover:text-primary">All Jobs</a><a href="/dashboard/" class="hover:text-primary">Dashboard</a><a href="/admin/" class="hover:text-primary">Admin</a></nav>
+</div></header>
+<main class="max-w-6xl mx-auto px-4 py-8">
+<div class="bg-gradient-to-r from-primary to-blue-700 text-white rounded-2xl p-8">
+<h1 class="font-extrabold text-3xl font-[Plus_Jakarta_Sans]">Upgrade Skills. Unlock Jobs.</h1>
+<p class="text-blue-100 mt-2 max-w-2xl text-sm">Each skill card shows which recruitments it unlocks. Click “Add to my profile” to improve your CV match score instantly.</p>
+</div>
+<div id="grid" class="mt-6 grid md:grid-cols-3 gap-4"></div>
+</main>
+<script>
+grid.innerHTML = GYRS.SKILLS.map(s => `<div class="bg-white rounded-2xl shadow p-5 flex flex-col gap-2">
+<div class="flex items-center justify-between"><span class="px-2 py-0.5 rounded-full bg-blue-50 text-primary text-xs font-bold">${s.level}</span><span class="text-xs text-slate-400">${s.duration}</span></div>
+<h3 class="font-extrabold font-[Plus_Jakarta_Sans]">${s.name}</h3>
+<div class="text-xs text-slate-500">Unlocks:</div>
+<div class="flex flex-wrap gap-1.5">${s.jobs.map(j=>`<span class="px-2 py-1 rounded-lg bg-emerald-50 text-emerald-800 text-xs font-semibold">${j}</span>`).join("")}</div>
+<button data-add="${s.name.toLowerCase()}" class="mt-2 py-2.5 rounded-xl bg-primary text-white text-sm font-bold">+ Add to my profile</button>
+</div>`).join("");
+grid.addEventListener('click', e => {
+  const b = e.target.closest('[data-add]'); if(!b) return;
+  const me = GYRS.currentUser();
+  if(!me){ alert("Login first to save skills."); location.href="/auth/"; return; }
+  const users = GYRS.getUsers(); const i = users.findIndex(x=>x.email===me.email);
+  const v = b.getAttribute('data-add');
+  if(!(users[i].skills||[]).includes(v)) users[i].skills.push(v);
+  GYRS.saveUsers(users); alert("Added: "+v+" — check Dashboard match scores.");
+});
+</script></body></html>

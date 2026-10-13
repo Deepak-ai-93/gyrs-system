@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>User Dashboard | GYRS</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{colors:{primary:"#00288E",accent:"#FD761A"}}}}</script>
+<script src="/assets/js/data.js"></script>
+</head><body class="bg-slate-50 font-[Inter] text-slate-900">
+<header class="bg-white shadow-sm sticky top-0 z-50"><div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+<a href="/" class="font-extrabold text-primary text-lg font-[Plus_Jakarta_Sans]">GYRS <span class="text-accent">Dashboard</span></a>
+<nav class="flex items-center gap-4 text-sm font-semibold"><a href="/" class="hover:text-primary">Home</a><a href="/jobs/" class="hover:text-primary">All Jobs</a><a href="/skills/" class="hover:text-primary">Skills</a><button id="logoutBtn" class="px-3 py-1.5 rounded-lg bg-slate-900 text-white">Logout</button></nav>
+</div></header>
+<main class="max-w-6xl mx-auto px-4 py-8">
+<div id="needLogin" class="hidden bg-white rounded-2xl shadow p-8 text-center">Please <a href="/auth/" class="text-primary font-bold underline">login / register</a> to use dashboard.</div>
+<div id="dash" class="hidden flex-col gap-6">
+<div class="grid md:grid-cols-4 gap-4">
+<div class="bg-white rounded-2xl shadow p-5"><div class="text-xs text-slate-500">Matched Jobs</div><div id="st_match" class="text-3xl font-extrabold text-primary">0</div></div>
+<div class="bg-white rounded-2xl shadow p-5"><div class="text-xs text-slate-500">Saved</div><div id="st_saved" class="text-3xl font-extrabold">0</div></div>
+<div class="bg-white rounded-2xl shadow p-5"><div class="text-xs text-slate-500">Applied</div><div id="st_applied" class="text-3xl font-extrabold text-emerald-700">0</div></div>
+<div class="bg-white rounded-2xl shadow p-5"><div class="text-xs text-slate-500">My Skills</div><div id="st_skills" class="text-3xl font-extrabold text-accent">0</div></div>
+</div>
+<div class="grid md:grid-cols-2 gap-6">
+<div class="bg-white rounded-2xl shadow p-6">
+<h2 class="font-extrabold text-lg font-[Plus_Jakarta_Sans]">My Profile</h2>
+<div class="mt-3 grid grid-cols-2 gap-3 text-sm">
+<input id="pf_name" class="p-2.5 rounded-xl bg-slate-100" placeholder="Name"/>
+<input id="pf_mobile" class="p-2.5 rounded-xl bg-slate-100" placeholder="Mobile"/>
+<select id="pf_edu" class="p-2.5 rounded-xl bg-slate-100"><option>10th Pass</option><option>12th Pass</option><option>ITI</option><option>Any Graduate</option><option>GNM / Nursing</option></select>
+<select id="pf_cat" class="p-2.5 rounded-xl bg-slate-100"><option>GEN</option><option>SEBC</option><option>SC</option><option>ST</option><option>EWS</option></select>
+</div>
+<button id="saveProfile" class="mt-3 px-4 py-2.5 rounded-xl bg-primary text-white font-bold text-sm">Save Profile</button>
+</div>
+<div class="bg-white rounded-2xl shadow p-6">
+<h2 class="font-extrabold text-lg font-[Plus_Jakarta_Sans]">Upload CV → Skill Match</h2>
+<p class="text-xs text-slate-500 mt-1">Upload .txt resume (or paste text). We extract skills and score each job.</p>
+<input id="cvFile" type="file" accept=".txt,.pdf" class="mt-3 text-sm"/>
+<textarea id="cvText" rows="4" placeholder="Paste resume text here (skills, education, experience)..." class="mt-2 w-full p-3 rounded-xl bg-slate-100 text-sm"></textarea>
+<button id="parseCv" class="mt-2 px-4 py-2.5 rounded-xl bg-emerald-700 text-white font-bold text-sm">Analyze My CV</button>
+<div id="cvSkills" class="mt-3 flex flex-wrap gap-2"></div>
+</div>
+</div>
+<div class="bg-white rounded-2xl shadow p-6">
+<h2 class="font-extrabold text-lg font-[Plus_Jakarta_Sans]">Recommended For You (CV-based)</h2>
+<div id="matchList" class="mt-3 grid md:grid-cols-2 gap-3"></div>
+</div>
+<div class="grid md:grid-cols-2 gap-6">
+<div class="bg-white rounded-2xl shadow p-6"><h2 class="font-extrabold font-[Plus_Jakarta_Sans]">Saved Jobs</h2><div id="savedList" class="mt-3 flex flex-col gap-2 text-sm"></div></div>
+<div class="bg-white rounded-2xl shadow p-6"><h2 class="font-extrabold font-[Plus_Jakarta_Sans]">Applied Jobs</h2><div id="appliedList" class="mt-3 flex flex-col gap-2 text-sm"></div></div>
+</div>
+</div>
+</main>
+<script>
+const u = GYRS.currentUser();
+if (!u) { needLogin.classList.remove('hidden'); }
+else {
+  dash.classList.remove('hidden'); dash.classList.add('flex');
+  pf_name.value = u.name||""; pf_mobile.value = u.mobile||"";
+  pf_edu.value = u.education||"12th Pass"; pf_cat.value = u.category||"GEN";
+  function refresh() {
+    const me = GYRS.currentUser(); const jobs = GYRS.getJobs();
+    st_saved.textContent = (me.saved||[]).length;
+    st_applied.textContent = (me.applied||[]).length;
+    st_skills.textContent = (me.skills||[]).length;
+    const scored = jobs.map(j => ({ j, s: GYRS.matchScore(me.skills||[], j) })).sort((a,b)=>b.s-a.s);
+    st_match.textContent = scored.filter(x=>x.s>=25).length;
+    matchList.innerHTML = scored.map(({j,s}) => `<div class="p-4 rounded-xl bg-slate-50 flex justify-between items-center gap-3">
+      <div><div class="font-bold text-sm">${j.title_en} <span class="text-xs text-slate-500">(${j.dept})</span></div>
+      <div class="text-xs text-slate-500">${j.posts} posts • ${j.qualification} • Last: ${j.last_date}</div>
+      <div class="text-xs font-bold ${s>=50?'text-emerald-700':s>=25?'text-amber-600':'text-slate-400'}">Match: ${s}%</div></div>
+      <div class="flex gap-2"><a href="/job-detail/?id=${j.id}" class="px-3 py-2 rounded-lg bg-primary text-white text-xs font-bold">View</a></div></div>`).join("");
+    savedList.innerHTML = (me.saved||[]).length ? me.saved.map(id => { const j = jobs.find(x=>x.id===id); return j?`<div class="p-3 rounded-xl bg-slate-50 flex justify-between"><span><b>${j.title_en}</b> — ${j.dept}</span><a class="text-primary font-bold" href="/job-detail/?id=${j.id}">Open</a></div>`:""; }).join("") : "<span class='text-slate-400'>No saved jobs.</span>";
+    appliedList.innerHTML = (me.applied||[]).length ? me.applied.map(id => { const j = jobs.find(x=>x.id===id); return j?`<div class="p-3 rounded-xl bg-slate-50"><b>${j.title_en}</b> — applied ✓</div>`:""; }).join("") : "<span class='text-slate-400'>No applications yet.</span>";
+    cvSkills.innerHTML = (me.skills||[]).map(s=>`<span class="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-bold">${s}</span>`).join("");
+  }
+  saveProfile.onclick = () => {
+    const users = GYRS.getUsers(); const i = users.findIndex(x=>x.email===u.email);
+    users[i].name = pf_name.value; users[i].mobile = pf_mobile.value; users[i].education = pf_edu.value; users[i].category = pf_cat.value;
+    GYRS.saveUsers(users); alert("Profile saved."); refresh();
+  };
+  parseCv.onclick = () => {
+    const text = (cvText.value||"").toLowerCase();
+    const found = GYRS.SKILL_VOCAB.filter(v => text.includes(v));
+    const users = GYRS.getUsers(); const i = users.findIndex(x=>x.email===u.email);
+    const merged = [...new Set([...(users[i].skills||[]), ...found])];
+    users[i].skills = merged; GYRS.saveUsers(users); alert(found.length?("Found skills: "+found.join(", ")):"No known skills found. Try adding: typing, computer, nursing, tally, gst, polity...");
+    refresh();
+  };
+  cvFile.onchange = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = () => { cvText.value = String(r.result||"").slice(0,8000); }; r.readAsText(f); };
+  logoutBtn.onclick = () => { GYRS.setSession(null); location.href = "/auth/"; };
+  refresh();
+}
+</script></body></html>

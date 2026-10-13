@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin Panel | GYRS Job Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{colors:{primary:"#00288E",accent:"#FD761A"}}}}</script>
+<script src="/assets/js/data.js"></script>
+</head><body class="bg-slate-100 font-[Inter] text-slate-900">
+<div id="gate" class="hidden min-h-screen flex items-center justify-center p-4">
+<div class="bg-white rounded-2xl shadow p-8 w-full max-w-sm">
+<h1 class="font-extrabold text-2xl font-[Plus_Jakarta_Sans]">Admin Login</h1>
+<p class="text-sm text-slate-500">Demo: <b>admin@gyrs.in / admin123</b></p>
+<form id="gateForm" class="mt-4 flex flex-col gap-3">
+<input id="g_email" type="email" required placeholder="Admin email" class="p-3 rounded-xl bg-slate-100 outline-none"/>
+<input id="g_pass" type="password" required placeholder="Password" class="p-3 rounded-xl bg-slate-100 outline-none"/>
+<button class="py-3 rounded-xl bg-primary text-white font-bold">Enter Panel</button>
+<p id="g_msg" class="text-sm text-red-600"></p>
+</form><a href="/" class="text-sm text-primary font-bold">← Back to site</a>
+</div>
+</div>
+<div id="panel" class="hidden min-h-screen flex">
+<aside class="w-60 bg-slate-900 text-white p-5 hidden md:flex flex-col gap-2 shrink-0">
+<div class="font-extrabold text-lg font-[Plus_Jakarta_Sans]">GYRS <span class="text-accent">Admin</span></div>
+<button data-v="dash" class="navBtn text-left px-3 py-2.5 rounded-xl bg-white/10 font-bold text-sm">📊 Dashboard</button>
+<button data-v="jobs" class="navBtn text-left px-3 py-2.5 rounded-xl hover:bg-white/10 font-bold text-sm">💼 Manage Jobs</button>
+<button data-v="users" class="navBtn text-left px-3 py-2.5 rounded-xl hover:bg-white/10 font-bold text-sm">👥 Manage Users</button>
+<button data-v="add" class="navBtn text-left px-3 py-2.5 rounded-xl bg-emerald-600 font-bold text-sm">＋ Add New Job</button>
+<div class="mt-auto flex flex-col gap-2"><a href="/" class="text-xs text-slate-300">← View site</a><button id="logoutBtn" class="text-left text-xs text-red-300">Logout</button></div>
+</aside>
+<main class="flex-1 p-4 md:p-8 max-w-5xl">
+<div class="md:hidden flex gap-2 mb-4 overflow-x-auto">
+<button data-v="dash" class="navBtn px-3 py-2 rounded-lg bg-slate-900 text-white text-xs font-bold">Dashboard</button>
+<button data-v="jobs" class="navBtn px-3 py-2 rounded-lg bg-white shadow text-xs font-bold">Jobs</button>
+<button data-v="users" class="navBtn px-3 py-2 rounded-lg bg-white shadow text-xs font-bold">Users</button>
+<button data-v="add" class="navBtn px-3 py-2 rounded-lg bg-emerald-600 text-white text-xs font-bold">+ Add Job</button>
+</div>
+<section id="v-dash">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+<div class="bg-white rounded-2xl shadow p-5"><div class="text-xs text-slate-500">Live Jobs</div><div id="c_jobs" class="text-3xl font-extrabold text-primary">0</div></div>
+<div class="bg-white rounded-2xl shadow p-5"><div class="text-xs text-slate-500">Total Users</div><div id="c_users" class="text-3xl font-extrabold">0</div></div>
+<div class="bg-white rounded-2xl shadow p-5"><div class="text-xs text-slate-500">Total Vacancies</div><div id="c_posts" class="text-3xl font-extrabold text-emerald-700">0</div></div>
+<div class="bg-white rounded-2xl shadow p-5"><div class="text-xs text-slate-500">Closing ≤ 7 days</div><div id="c_urgent" class="text-3xl font-extrabold text-red-600">0</div></div>
+</div>
+<div class="mt-4 bg-white rounded-2xl shadow p-6"><h2 class="font-extrabold font-[Plus_Jakarta_Sans]">How to publish a job</h2>
+<ol class="text-sm text-slate-600 mt-2 list-decimal ml-5 flex flex-col gap-1"><li>Click <b>Add New Job</b>, fill every field (title, board, advt no, posts, qualification, age, fees, salary, state/location, dates, skills, notification text, documents, official apply URL, notification PDF link).</li><li>Upload / paste the official notification file link in <b>Notification PDF URL</b>.</li><li>Save — it appears instantly on Home, All Jobs and candidate dashboards.</li></ol></div>
+</section>
+<section id="v-jobs" class="hidden">
+<div class="bg-white rounded-2xl shadow p-5 overflow-x-auto">
+<table class="w-full text-sm min-w-[640px]"><thead><tr class="text-left text-xs text-slate-500"><th class="py-2">Title</th><th>Board</th><th>Posts</th><th>Last date</th><th>Status</th><th>Actions</th></tr></thead><tbody id="jobRows"></tbody></table>
+</div>
+</section>
+<section id="v-users" class="hidden">
+<div class="bg-white rounded-2xl shadow p-5 overflow-x-auto">
+<table class="w-full text-sm min-w-[560px]"><thead><tr class="text-left text-xs text-slate-500"><th class="py-2">Name</th><th>Email</th><th>Education</th><th>Saved</th><th>Applied</th><th>Actions</th></tr></thead><tbody id="userRows"></tbody></table>
+</div>
+</section>
+<section id="v-add" class="hidden">
+<form id="jobForm" class="bg-white rounded-2xl shadow p-6 grid md:grid-cols-2 gap-3 text-sm">
+<h2 class="md:col-span-2 font-extrabold text-lg font-[Plus_Jakarta_Sans]">Add / Edit Job (all fields)</h2>
+<input type="hidden" id="f_id"/>
+<input id="f_title" required placeholder="Job title (e.g. Staff Nurse Class-III)" class="p-3 rounded-xl bg-slate-100 md:col-span-2"/>
+<input id="f_dept" required placeholder="Board / Dept (e.g. GSSSB)" class="p-3 rounded-xl bg-slate-100"/>
+<input id="f_advt" required placeholder="Advt No (e.g. GSSSB/202627/192)" class="p-3 rounded-xl bg-slate-100"/>
+<input id="f_posts" required type="number" min="1" placeholder="Total posts" class="p-3 rounded-xl bg-slate-100"/>
+<input id="f_qual" required placeholder="Qualification (e.g. GNM / B.Sc Nursing)" class="p-3 rounded-xl bg-slate-100"/>
+<input id="f_age" placeholder="Age min-max (e.g. 21-38)" class="p-3 rounded-xl bg-slate-100"/>
+<input id="f_salary" placeholder="Salary (e.g. ₹26,000 Fix Pay)" class="p-3 rounded-xl bg-slate-100"/>
+<input id="f_loc" placeholder="Location / State (e.g. Civil Hospitals Gujarat)" class="p-3 rounded-xl bg-slate-100"/>
+<input id="f_fees" placeholder="Fees Gen/Reserved (e.g. 500/250)" class="p-3 rounded-xl bg-slate-100"/>
+<div class="grid grid-cols-3 gap-2 md:col-span-2">
+<div><label class="text-xs font-bold">Start date</label><input id="f_start" type="date" class="w-full p-2.5 rounded-xl bg-slate-100"/></div>
+<div><label class="text-xs font-bold">Last date</label><input id="f_last" type="date" class="w-full p-2.5 rounded-xl bg-slate-100"/></div>
+<div><label class="text-xs font-bold">Exam date</label><input id="f_exam" type="date" class="w-full p-2.5 rounded-xl bg-slate-100"/></div>
+</div>
+<input id="f_skills" placeholder="Skills comma-separated (e.g. patient care, anatomy)" class="p-3 rounded-xl bg-slate-100 md:col-span-2"/>
+<textarea id="f_notif" rows="3" placeholder="Official notification text..." class="p-3 rounded-xl bg-slate-100 md:col-span-2"></textarea>
+<textarea id="f_docs" rows="2" placeholder="Documents required, comma-separated..." class="p-3 rounded-xl bg-slate-100 md:col-span-2"></textarea>
+<input id="f_apply" required placeholder="Official Apply URL (respective board website)" class="p-3 rounded-xl bg-slate-100 md:col-span-2"/>
+<input id="f_pdf" placeholder="Notification PDF URL / upload link" class="p-3 rounded-xl bg-slate-100 md:col-span-2"/>
+<select id="f_status" class="p-3 rounded-xl bg-slate-100"><option value="published">Published</option><option value="draft">Draft</option><option value="closed">Closed</option></select>
+<div class="flex gap-2"><button class="px-6 py-3 rounded-xl bg-emerald-700 text-white font-bold">Save Job</button><button type="button" id="f_cancel" class="px-6 py-3 rounded-xl bg-slate-200 font-bold">Cancel</button></div>
+</form>
+</section>
+</main>
+</div>
+<script>
+const me = GYRS.currentUser();
+if (!me || me.role !== "admin") { gate.classList.remove('hidden'); }
+else { panel.classList.remove('hidden'); panel.classList.add('flex'); init(); }
+gateForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const u = GYRS.getUsers().find(x => x.email.toLowerCase()===g_email.value.trim().toLowerCase() && x.password===g_pass.value && x.role==="admin");
+  if(!u){ g_msg.textContent="Invalid admin credentials."; return; }
+  GYRS.setSession({email:u.email,role:"admin"}); location.reload();
+});
+function init(){
+  logoutBtn.onclick = ()=>{ GYRS.setSession(null); location.href="/auth/"; };
+  document.querySelectorAll('.navBtn').forEach(b=>b.onclick=()=>{
+    ["dash","jobs","users","add"].forEach(v=>document.getElementById('v-'+v).classList.add('hidden'));
+    document.getElementById('v-'+b.dataset.v).classList.remove('hidden');
+    if(b.dataset.v==="jobs") renderJobs();
+    if(b.dataset.v==="users") renderUsers();
+    if(b.dataset.v==="dash") renderDash();
+  });
+  f_cancel.onclick = ()=>{ jobForm.reset(); f_id.value=""; };
+  jobForm.onsubmit = e => {
+    e.preventDefault();
+    const jobs = GYRS.getJobs();
+    const [amin,amax] = (f_age.value||"18-35").split("-").map(x=>parseInt(x)||0);
+    const [fg,fr] = (f_fees.value||"0/0").split("/").map(x=>parseInt(x)||0);
+    const obj = { id: f_id.value || ("job-"+Date.now()), title_en: f_title.value.trim(), title_gu: "", dept: f_dept.value.trim(), advt_no: f_advt.value.trim(), posts: parseInt(f_posts.value)||0, qualification: f_qual.value.trim(), age_min: amin||18, age_max: amax||35, fees_gen: fg, fees_res: fr, salary: f_salary.value.trim(), location: f_loc.value.trim(), start_date: f_start.value, last_date: f_last.value, exam_date: f_exam.value, apply_url: f_apply.value.trim(), pdf_url: f_pdf.value.trim()||"#", skills: f_skills.value.split(",").map(s=>s.trim()).filter(Boolean), notification: f_notif.value.trim(), documents: f_docs.value.split(",").map(s=>s.trim()).filter(Boolean), status: f_status.value, views: 0, clicks: 0 };
+    const i = jobs.findIndex(j=>j.id===obj.id);
+    if(i>=0) jobs[i]=obj; else jobs.push(obj);
+    GYRS.saveJobs(jobs); jobForm.reset(); f_id.value=""; alert("Job saved & live."); renderDash();
+  };
+  renderDash();
+}
+function renderDash(){
+  const jobs = GYRS.getJobs(), users = GYRS.getUsers();
+  c_jobs.textContent = jobs.length;
+  c_users.textContent = users.filter(u=>u.role!=="admin").length;
+  c_posts.textContent = jobs.reduce((a,j)=>a+(j.posts||0),0).toLocaleString("en-IN");
+  const now = new Date();
+  c_urgent.textContent = jobs.filter(j=>{ const d=(new Date(j.last_date)-now)/864e5; return d>=0&&d<=7; }).length;
+}
+function renderJobs(){
+  jobRows.innerHTML = GYRS.getJobs().map(j=>`<tr class="border-t"><td class="py-2 font-bold">${j.title_en}</td><td>${j.dept}</td><td>${j.posts}</td><td>${j.last_date}</td><td>${j.status}</td>
+  <td class="flex gap-2 py-2"><button onclick="editJob('${j.id}')" class="px-2.5 py-1 rounded-lg bg-blue-50 text-primary font-bold text-xs">Edit</button><button onclick="delJob('${j.id}')" class="px-2.5 py-1 rounded-lg bg-red-50 text-red-700 font-bold text-xs">Delete</button></td></tr>`).join("");
+}
+function renderUsers(){
+  userRows.innerHTML = GYRS.getUsers().map(u=>`<tr class="border-t"><td class="py-2 font-bold">${u.name}${u.blocked?' (blocked)':''}</td><td>${u.email}</td><td>${u.education||"-"}</td><td>${(u.saved||[]).length}</td><td>${(u.applied||[]).length}</td>
+  <td class="flex gap-2 py-2">${u.role!=="admin"?`<button onclick="blockUser('${u.email}')" class="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 font-bold text-xs">${u.blocked?"Unblock":"Block"}</button><button onclick="delUser('${u.email}')" class="px-2.5 py-1 rounded-lg bg-red-50 text-red-700 font-bold text-xs">Delete</button>`:"<span class='text-xs text-slate-400'>admin</span>"}</td></tr>`).join("");
+}
+window.editJob = id => {
+  const j = GYRS.getJobs().find(x=>x.id===id); if(!j) return;
+  ["dash","jobs","users"].forEach(v=>document.getElementById('v-'+v).classList.add('hidden'));
+  document.getElementById('v-add').classList.remove('hidden');
+  f_id.value=j.id; f_title.value=j.title_en; f_dept.value=j.dept; f_advt.value=j.advt_no; f_posts.value=j.posts; f_qual.value=j.qualification; f_age.value=j.age_min+"-"+j.age_max; f_salary.value=j.salary; f_loc.value=j.location; f_fees.value=j.fees_gen+"/"+j.fees_res; f_start.value=j.start_date||""; f_last.value=j.last_date||""; f_exam.value=j.exam_date||""; f_skills.value=(j.skills||[]).join(", "); f_notif.value=j.notification||""; f_docs.value=(j.documents||[]).join(", "); f_apply.value=j.apply_url; f_pdf.value=j.pdf_url==="#"?"":j.pdf_url; f_status.value=j.status;
+  window.scrollTo(0,0);
+};
+window.delJob = id => { if(!confirm("Delete this job?")) return; GYRS.saveJobs(GYRS.getJobs().filter(j=>j.id!==id)); renderJobs(); renderDash(); };
+window.blockUser = email => { const u=GYRS.getUsers(); const i=u.findIndex(x=>x.email===email); u[i].blocked=!u[i].blocked; GYRS.saveUsers(u); renderUsers(); };
+window.delUser = email => { if(!confirm("Delete user "+email+"?")) return; GYRS.saveUsers(GYRS.getUsers().filter(x=>x.email!==email)); renderUsers(); renderDash(); };
+</script></body></html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Login / Register | GYRS</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{colors:{primary:"#00288E",accent:"#FD761A"}}}}</script>
+<script src="/assets/js/data.js"></script>
+</head><body class="bg-slate-50 font-[Inter] text-slate-900 antialiased">
+<header class="bg-white shadow-sm sticky top-0 z-50"><div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+<a href="/" class="font-extrabold text-primary text-lg font-[Plus_Jakarta_Sans]">GYRS <span class="text-accent">Gujarat</span></a>
+<nav class="flex items-center gap-4 text-sm font-semibold"><a href="/" class="hover:text-primary">Home</a><a href="/jobs/" class="hover:text-primary">All Jobs</a><a href="/skills/" class="hover:text-primary">Skills</a><a href="/dashboard/" class="hover:text-primary">Dashboard</a><a href="/admin/" class="hover:text-primary">Admin</a></nav>
+</div></header>
+<main class="max-w-4xl mx-auto px-4 py-10 grid md:grid-cols-2 gap-6">
+<div class="bg-white rounded-2xl shadow p-6">
+<h1 class="font-extrabold text-2xl font-[Plus_Jakarta_Sans]">Candidate Login</h1>
+<p class="text-sm text-slate-500 mt-1">Access dashboard, saved jobs, CV matching.</p>
+<form id="loginForm" class="mt-4 flex flex-col gap-3">
+<input id="li_email" required type="email" placeholder="Email" class="p-3 rounded-xl bg-slate-100 outline-none focus:ring-2 focus:ring-primary"/>
+<input id="li_pass" required type="password" placeholder="Password" class="p-3 rounded-xl bg-slate-100 outline-none focus:ring-2 focus:ring-primary"/>
+<button class="py-3 rounded-xl bg-primary text-white font-bold hover:opacity-90">Login</button>
+<p id="li_msg" class="text-sm text-red-600"></p>
+</form>
+<div class="mt-3 text-xs bg-slate-50 rounded-xl p-3 text-slate-600">Demo — User: <b>priya@example.com / user123</b><br/>Demo — Admin: <b>admin@gyrs.in / admin123</b> (redirects to admin panel)</div>
+</div>
+<div class="bg-white rounded-2xl shadow p-6">
+<h2 class="font-extrabold text-2xl font-[Plus_Jakarta_Sans]">New Register</h2>
+<p class="text-sm text-slate-500 mt-1">One-time profile for eligibility + alerts.</p>
+<form id="regForm" class="mt-4 flex flex-col gap-3">
+<input id="rg_name" required placeholder="Full name" class="p-3 rounded-xl bg-slate-100 outline-none focus:ring-2 focus:ring-primary"/>
+<div class="grid grid-cols-2 gap-3">
+<input id="rg_mobile" required placeholder="Mobile" class="p-3 rounded-xl bg-slate-100 outline-none"/>
+<input id="rg_email" required type="email" placeholder="Email" class="p-3 rounded-xl bg-slate-100 outline-none"/>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<input id="rg_pass" required type="password" placeholder="Password" class="p-3 rounded-xl bg-slate-100 outline-none"/>
+<select id="rg_edu" class="p-3 rounded-xl bg-slate-100"><option>10th Pass</option><option>12th Pass</option><option>ITI</option><option>Any Graduate</option><option>GNM / Nursing</option></select>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<select id="rg_cat" class="p-3 rounded-xl bg-slate-100"><option>GEN</option><option>SEBC</option><option>SC</option><option>ST</option><option>EWS</option></select>
+<input id="rg_dist" placeholder="District" class="p-3 rounded-xl bg-slate-100 outline-none"/>
+</div>
+<button class="py-3 rounded-xl bg-emerald-700 text-white font-bold hover:opacity-90">Create Account</button>
+<p id="rg_msg" class="text-sm text-red-600"></p>
+</form>
+</div>
+</main>
+<script>
+document.getElementById('loginForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const email = li_email.value.trim().toLowerCase(), pass = li_pass.value;
+  const u = GYRS.getUsers().find(x => x.email.toLowerCase() === email && x.password === pass);
+  if (!u) { li_msg.textContent = "Invalid email/password."; return; }
+  if (u.blocked) { li_msg.textContent = "Account blocked. Contact support."; return; }
+  GYRS.setSession({ email: u.email, role: u.role });
+  location.href = u.role === "admin" ? "/admin/" : "/dashboard/";
+});
+document.getElementById('regForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const users = GYRS.getUsers();
+  const email = rg_email.value.trim().toLowerCase();
+  if (users.some(x => x.email.toLowerCase() === email)) { rg_msg.textContent = "Email already registered. Please login."; return; }
+  users.push({ name: rg_name.value.trim(), email, mobile: rg_mobile.value.trim(), password: rg_pass.value, role: "user", education: rg_edu.value, category: rg_cat.value, district: rg_dist.value.trim(), skills: [], saved: [], applied: [], blocked: false });
+  GYRS.saveUsers(users); GYRS.setSession({ email, role: "user" });
+  location.href = "/dashboard/";
+});
+</script></body></html>
