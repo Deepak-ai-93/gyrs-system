@@ -4,6 +4,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com"></script>
 <script>tailwind.config={theme:{extend:{colors:{primary:"#00288E",accent:"#FD761A"}}}}</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="/assets/js/data.js"></script>
 </head><body class="bg-slate-100 font-[Inter] text-slate-900">
 <div id="gate" class="hidden min-h-screen flex items-center justify-center p-4">
@@ -24,36 +25,103 @@
 <button data-v="dash" class="navBtn text-left px-3 py-2.5 rounded-xl bg-white/10 font-bold text-sm">📊 Dashboard</button>
 <button data-v="jobs" class="navBtn text-left px-3 py-2.5 rounded-xl hover:bg-white/10 font-bold text-sm">💼 Manage Jobs</button>
 <button data-v="users" class="navBtn text-left px-3 py-2.5 rounded-xl hover:bg-white/10 font-bold text-sm">👥 Manage Users</button>
+<button data-v="apps" class="navBtn text-left px-3 py-2.5 rounded-xl hover:bg-white/10 font-bold text-sm">📝 Applications</button>
+<button data-v="reports" class="navBtn text-left px-3 py-2.5 rounded-xl hover:bg-white/10 font-bold text-sm">📥 Reports</button>
+<button data-v="activity" class="navBtn text-left px-3 py-2.5 rounded-xl hover:bg-white/10 font-bold text-sm">🔔 Activity Log</button>
 <button data-v="add" class="navBtn text-left px-3 py-2.5 rounded-xl bg-emerald-600 font-bold text-sm">＋ Add New Job</button>
 <div class="mt-auto flex flex-col gap-2"><a href="/" class="text-xs text-slate-300">← View site</a><button id="logoutBtn" class="text-left text-xs text-red-300">Logout</button></div>
 </aside>
-<main class="flex-1 p-4 md:p-8 max-w-5xl">
+<main class="flex-1 p-4 md:p-8 max-w-6xl w-full">
 <div class="md:hidden flex gap-2 mb-4 overflow-x-auto">
 <button data-v="dash" class="navBtn px-3 py-2 rounded-lg bg-slate-900 text-white text-xs font-bold">Dashboard</button>
 <button data-v="jobs" class="navBtn px-3 py-2 rounded-lg bg-white shadow text-xs font-bold">Jobs</button>
 <button data-v="users" class="navBtn px-3 py-2 rounded-lg bg-white shadow text-xs font-bold">Users</button>
+<button data-v="apps" class="navBtn px-3 py-2 rounded-lg bg-white shadow text-xs font-bold">Applications</button>
+<button data-v="reports" class="navBtn px-3 py-2 rounded-lg bg-white shadow text-xs font-bold">Reports</button>
+<button data-v="activity" class="navBtn px-3 py-2 rounded-lg bg-white shadow text-xs font-bold">Activity</button>
 <button data-v="add" class="navBtn px-3 py-2 rounded-lg bg-emerald-600 text-white text-xs font-bold">+ Add Job</button>
 </div>
+
+<!-- DASHBOARD -->
 <section id="v-dash">
-<div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-<div class="bg-white rounded-2xl shadow p-5"><div class="text-xs text-slate-500">Live Jobs</div><div id="c_jobs" class="text-3xl font-extrabold text-primary">0</div></div>
+<div class="bg-white rounded-2xl shadow p-4 flex flex-col md:flex-row gap-2 md:items-center">
+<input id="flt_q" placeholder="🔍 Search title / advt no / board..." class="flex-1 p-2.5 rounded-xl bg-slate-100 text-sm outline-none"/>
+<select id="flt_dept" class="p-2.5 rounded-xl bg-slate-100 text-sm"><option value="">All Boards</option></select>
+<select id="flt_status" class="p-2.5 rounded-xl bg-slate-100 text-sm"><option value="">All Status</option><option value="published">Published</option><option value="draft">Draft</option><option value="closed">Closed</option></select>
+<select id="flt_close" class="p-2.5 rounded-xl bg-slate-100 text-sm"><option value="">Any deadline</option><option value="7">Closing ≤ 7 days</option><option value="15">Closing ≤ 15 days</option><option value="30">Closing ≤ 30 days</option></select>
+<button id="flt_reset" class="px-4 py-2.5 rounded-xl bg-slate-200 text-sm font-bold">Reset</button>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
+<div class="bg-white rounded-2xl shadow p-5"><div class="text-xs text-slate-500">Jobs (filtered)</div><div id="c_jobs" class="text-3xl font-extrabold text-primary">0</div></div>
+<div class="bg-white rounded-2xl shadow p-5"><div class="text-xs text-slate-500">Vacancies (filtered)</div><div id="c_posts" class="text-3xl font-extrabold text-emerald-700">0</div></div>
 <div class="bg-white rounded-2xl shadow p-5"><div class="text-xs text-slate-500">Total Users</div><div id="c_users" class="text-3xl font-extrabold">0</div></div>
-<div class="bg-white rounded-2xl shadow p-5"><div class="text-xs text-slate-500">Total Vacancies</div><div id="c_posts" class="text-3xl font-extrabold text-emerald-700">0</div></div>
-<div class="bg-white rounded-2xl shadow p-5"><div class="text-xs text-slate-500">Closing ≤ 7 days</div><div id="c_urgent" class="text-3xl font-extrabold text-red-600">0</div></div>
+<div class="bg-white rounded-2xl shadow p-5"><div class="text-xs text-slate-500">Applications</div><div id="c_apps" class="text-3xl font-extrabold text-accent">0</div></div>
 </div>
-<div class="mt-4 bg-white rounded-2xl shadow p-6"><h2 class="font-extrabold font-[Plus_Jakarta_Sans]">How to publish a job</h2>
-<ol class="text-sm text-slate-600 mt-2 list-decimal ml-5 flex flex-col gap-1"><li>Click <b>Add New Job</b>, fill every field (title, board, advt no, posts, qualification, age, fees, salary, state/location, dates, skills, notification text, documents, official apply URL, notification PDF link).</li><li>Upload / paste the official notification file link in <b>Notification PDF URL</b>.</li><li>Save — it appears instantly on Home, All Jobs and candidate dashboards.</li></ol></div>
+<div class="grid md:grid-cols-2 gap-3 mt-3">
+<div class="bg-white rounded-2xl shadow p-5"><h3 class="font-extrabold text-sm font-[Plus_Jakarta_Sans]">Vacancies by Board</h3><canvas id="ch_dept" height="180"></canvas></div>
+<div class="bg-white rounded-2xl shadow p-5"><h3 class="font-extrabold text-sm font-[Plus_Jakarta_Sans]">Jobs by Status</h3><canvas id="ch_status" height="180"></canvas></div>
+</div>
+<div class="mt-3 bg-white rounded-2xl shadow p-5">
+<div class="flex items-center justify-between"><h3 class="font-extrabold text-sm font-[Plus_Jakarta_Sans]">⚠️ Closing Soon (filtered)</h3><button id="exp_urgent" class="px-3 py-1.5 rounded-lg bg-red-50 text-red-700 text-xs font-bold">Download CSV</button></div>
+<div id="urgentList" class="mt-2 flex flex-col gap-2 text-sm"></div>
+</div>
 </section>
+
+<!-- JOBS -->
 <section id="v-jobs" class="hidden">
+<div class="bg-white rounded-2xl shadow p-4 flex flex-col md:flex-row gap-2 md:items-center mb-3">
+<input id="jq" placeholder="🔍 Search jobs..." class="flex-1 p-2.5 rounded-xl bg-slate-100 text-sm outline-none"/>
+<select id="jstatus" class="p-2.5 rounded-xl bg-slate-100 text-sm"><option value="">All Status</option><option value="published">Published</option><option value="draft">Draft</option><option value="closed">Closed</option></select>
+<button id="exp_jobs" class="px-4 py-2.5 rounded-xl bg-emerald-700 text-white text-sm font-bold">⬇ Export CSV</button>
+</div>
 <div class="bg-white rounded-2xl shadow p-5 overflow-x-auto">
-<table class="w-full text-sm min-w-[640px]"><thead><tr class="text-left text-xs text-slate-500"><th class="py-2">Title</th><th>Board</th><th>Posts</th><th>Last date</th><th>Status</th><th>Actions</th></tr></thead><tbody id="jobRows"></tbody></table>
+<table class="w-full text-sm min-w-[760px]"><thead><tr class="text-left text-xs text-slate-500"><th class="py-2">Title / Advt</th><th>Board</th><th>Posts</th><th>Last date</th><th>Views/Clicks</th><th>Status</th><th>Actions</th></tr></thead><tbody id="jobRows"></tbody></table>
 </div>
 </section>
+
+<!-- USERS -->
 <section id="v-users" class="hidden">
+<div class="bg-white rounded-2xl shadow p-4 flex flex-col md:flex-row gap-2 md:items-center mb-3">
+<input id="uq" placeholder="🔍 Search name / email / district..." class="flex-1 p-2.5 rounded-xl bg-slate-100 text-sm outline-none"/>
+<select id="ublock" class="p-2.5 rounded-xl bg-slate-100 text-sm"><option value="">All users</option><option value="active">Active</option><option value="blocked">Blocked</option></select>
+<button id="exp_users" class="px-4 py-2.5 rounded-xl bg-emerald-700 text-white text-sm font-bold">⬇ Export CSV</button>
+</div>
 <div class="bg-white rounded-2xl shadow p-5 overflow-x-auto">
-<table class="w-full text-sm min-w-[560px]"><thead><tr class="text-left text-xs text-slate-500"><th class="py-2">Name</th><th>Email</th><th>Education</th><th>Saved</th><th>Applied</th><th>Actions</th></tr></thead><tbody id="userRows"></tbody></table>
+<table class="w-full text-sm min-w-[680px]"><thead><tr class="text-left text-xs text-slate-500"><th class="py-2">Name</th><th>Email / Mobile</th><th>Education</th><th>Skills</th><th>Saved/Applied</th><th>Status</th><th>Actions</th></tr></thead><tbody id="userRows"></tbody></table>
 </div>
 </section>
+
+<!-- APPLICATIONS -->
+<section id="v-apps" class="hidden">
+<div class="bg-white rounded-2xl shadow p-4 flex flex-col md:flex-row gap-2 md:items-center mb-3">
+<input id="aq" placeholder="🔍 Search user / job..." class="flex-1 p-2.5 rounded-xl bg-slate-100 text-sm outline-none"/>
+<select id="atype" class="p-2.5 rounded-xl bg-slate-100 text-sm"><option value="">Saved + Applied</option><option value="saved">Saved only</option><option value="applied">Applied only</option></select>
+<button id="exp_apps" class="px-4 py-2.5 rounded-xl bg-emerald-700 text-white text-sm font-bold">⬇ Export CSV</button>
+</div>
+<div class="bg-white rounded-2xl shadow p-5 overflow-x-auto">
+<table class="w-full text-sm min-w-[640px]"><thead><tr class="text-left text-xs text-slate-500"><th class="py-2">User</th><th>Job</th><th>Board</th><th>Type</th><th>Last date</th></tr></thead><tbody id="appRows"></tbody></table>
+</div>
+</section>
+
+<!-- REPORTS -->
+<section id="v-reports" class="hidden">
+<div class="grid md:grid-cols-2 gap-3">
+<div class="bg-white rounded-2xl shadow p-6"><h3 class="font-extrabold font-[Plus_Jakarta_Sans]">💼 Jobs Report</h3><p class="text-xs text-slate-500 mt-1">All jobs with vacancies, dates, status, views & clicks. Respects dashboard filters.</p><button onclick="dlJobs(false)" class="mt-3 px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-bold">Download Jobs CSV</button></div>
+<div class="bg-white rounded-2xl shadow p-6"><h3 class="font-extrabold font-[Plus_Jakarta_Sans]">👥 Users Report</h3><p class="text-xs text-slate-500 mt-1">Name, contact, education, category, district, skills, saved & applied counts.</p><button onclick="dlUsers()" class="mt-3 px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-bold">Download Users CSV</button></div>
+<div class="bg-white rounded-2xl shadow p-6"><h3 class="font-extrabold font-[Plus_Jakarta_Sans]">📝 Applications Report</h3><p class="text-xs text-slate-500 mt-1">Every saved + applied event per user and job.</p><button onclick="dlApps()" class="mt-3 px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-bold">Download Applications CSV</button></div>
+<div class="bg-white rounded-2xl shadow p-6"><h3 class="font-extrabold font-[Plus_Jakarta_Sans]">⚠️ Closing-Soon Report</h3><p class="text-xs text-slate-500 mt-1">Jobs closing within 7 days for reminder campaigns.</p><button onclick="dlUrgent()" class="mt-3 px-4 py-2.5 rounded-xl bg-red-600 text-white text-sm font-bold">Download Urgent CSV</button></div>
+</div>
+</section>
+
+<!-- ACTIVITY -->
+<section id="v-activity" class="hidden">
+<div class="bg-white rounded-2xl shadow p-5">
+<div class="flex items-center justify-between"><h3 class="font-extrabold font-[Plus_Jakarta_Sans]">🔔 Activity Log</h3><button id="act_clear" class="px-3 py-1.5 rounded-lg bg-slate-200 text-xs font-bold">Clear</button></div>
+<div id="actList" class="mt-2 flex flex-col gap-2 text-sm"></div>
+</div>
+</section>
+
+<!-- ADD / EDIT -->
 <section id="v-add" class="hidden">
 <form id="jobForm" class="bg-white rounded-2xl shadow p-6 grid md:grid-cols-2 gap-3 text-sm">
 <h2 class="md:col-span-2 font-extrabold text-lg font-[Plus_Jakarta_Sans]">Add / Edit Job (all fields)</h2>
@@ -76,6 +144,7 @@
 <textarea id="f_notif" rows="3" placeholder="Official notification text..." class="p-3 rounded-xl bg-slate-100 md:col-span-2"></textarea>
 <textarea id="f_docs" rows="2" placeholder="Documents required, comma-separated..." class="p-3 rounded-xl bg-slate-100 md:col-span-2"></textarea>
 <input id="f_apply" required placeholder="Official Apply URL (respective board website)" class="p-3 rounded-xl bg-slate-100 md:col-span-2"/>
+<label class="md:col-span-2 text-xs font-bold">Notification PDF file <span class="font-normal text-slate-500">(PDF — link auto-fills below)</span><input id="f_pdffile" type="file" accept=".pdf" class="mt-1 block text-xs"/></label>
 <input id="f_pdf" placeholder="Notification PDF URL / upload link" class="p-3 rounded-xl bg-slate-100 md:col-span-2"/>
 <select id="f_status" class="p-3 rounded-xl bg-slate-100"><option value="published">Published</option><option value="draft">Draft</option><option value="closed">Closed</option></select>
 <div class="flex gap-2"><button class="px-6 py-3 rounded-xl bg-emerald-700 text-white font-bold">Save Job</button><button type="button" id="f_cancel" class="px-6 py-3 rounded-xl bg-slate-200 font-bold">Cancel</button></div>
@@ -84,6 +153,9 @@
 </main>
 </div>
 <script>
+const ACT_KEY = "gyrs_activity";
+const getAct = () => { try { return JSON.parse(localStorage.getItem(ACT_KEY)) || []; } catch(e){ return []; } };
+const logAct = (msg) => { const a = getAct(); a.unshift({ t: new Date().toLocaleString("en-IN"), msg }); localStorage.setItem(ACT_KEY, JSON.stringify(a.slice(0,200))); };
 const me = GYRS.currentUser();
 if (!me || me.role !== "admin") { gate.classList.remove('hidden'); }
 else { panel.classList.remove('hidden'); panel.classList.add('flex'); init(); }
@@ -93,52 +165,149 @@ gateForm.addEventListener('submit', e => {
   if(!u){ g_msg.textContent="Invalid admin credentials."; return; }
   GYRS.setSession({email:u.email,role:"admin"}); location.reload();
 });
-function init(){
-  logoutBtn.onclick = ()=>{ GYRS.setSession(null); location.href="/auth/"; };
-  document.querySelectorAll('.navBtn').forEach(b=>b.onclick=()=>{
-    ["dash","jobs","users","add"].forEach(v=>document.getElementById('v-'+v).classList.add('hidden'));
-    document.getElementById('v-'+b.dataset.v).classList.remove('hidden');
-    if(b.dataset.v==="jobs") renderJobs();
-    if(b.dataset.v==="users") renderUsers();
-    if(b.dataset.v==="dash") renderDash();
+const VIEWS = ["dash","jobs","users","apps","reports","activity","add"];
+function show(v){
+  VIEWS.forEach(x=>document.getElementById('v-'+x).classList.add('hidden'));
+  document.getElementById('v-'+v).classList.remove('hidden');
+  if(v==="jobs") renderJobs(); if(v==="users") renderUsers();
+  if(v==="apps") renderApps(); if(v==="dash") renderDash();
+  if(v==="activity") renderAct();
+}
+function filteredJobs(){
+  const q=(flt_q.value||"").toLowerCase(), d=flt_dept.value, s=flt_status.value, c=parseInt(flt_close.value||"0");
+  const now=new Date();
+  return GYRS.getJobs().filter(j=>{
+    if(d && j.dept!==d) return false;
+    if(s && j.status!==s) return false;
+    if(q && !((j.title_en+" "+j.advt_no+" "+j.dept).toLowerCase().includes(q))) return false;
+    if(c){ const days=(new Date(j.last_date)-now)/864e5; if(!(days>=0&&days<=c)) return false; }
+    return true;
   });
-  f_cancel.onclick = ()=>{ jobForm.reset(); f_id.value=""; };
-  jobForm.onsubmit = e => {
+}
+let chD=null, chS=null;
+function drawCharts(rows){
+  if(typeof Chart==="undefined") return;
+  const byD={}; rows.forEach(j=>{byD[j.dept]=(byD[j.dept]||0)+(j.posts||0);});
+  const byS={}; rows.forEach(j=>{byS[j.status]=(byS[j.status]||0)+1;});
+  if(chD) chD.destroy(); if(chS) chS.destroy();
+  chD=new Chart(document.getElementById('ch_dept'),{type:'bar',data:{labels:Object.keys(byD),datasets:[{data:Object.values(byD),backgroundColor:'#00288E'}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+  chS=new Chart(document.getElementById('ch_status'),{type:'doughnut',data:{labels:Object.keys(byS),datasets:[{data:Object.values(byS),backgroundColor:['#16A34A','#F59E0B','#DC2626']}]},options:{plugins:{legend:{position:'bottom'}}}});
+}
+function renderDash(){
+  const rows=filteredJobs(), users=GYRS.getUsers().filter(u=>u.role!=="admin");
+  c_jobs.textContent=rows.length;
+  c_posts.textContent=rows.reduce((a,j)=>a+(j.posts||0),0).toLocaleString("en-IN");
+  c_users.textContent=users.length;
+  c_apps.textContent=users.reduce((a,u)=>a+(u.applied||[]).length,0);
+  drawCharts(rows);
+  const now=new Date();
+  const urg=rows.map(j=>({j,days:Math.ceil((new Date(j.last_date)-now)/864e5)})).filter(x=>x.days>=0&&x.days<=7).sort((a,b)=>a.days-b.days);
+  urgentList.innerHTML=urg.length?urg.map(({j,days})=>`<div class="p-3 rounded-xl bg-red-50 flex justify-between items-center"><span><b>${j.title_en}</b> <span class="text-xs text-slate-500">${j.dept} • ${j.advt_no}</span></span><span class="text-xs font-bold text-red-700">${days===0?"Closes TODAY":days+" day(s) left"}</span></div>`).join(""):"<span class='text-slate-400'>No jobs closing within 7 days for current filter.</span>";
+}
+function statusPill(s){ return s==="published"?"<span class='px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold'>Published</span>":s==="draft"?"<span class='px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 text-xs font-bold'>Draft</span>":"<span class='px-2 py-0.5 rounded-full bg-slate-200 text-slate-600 text-xs font-bold'>Closed</span>"; }
+function renderJobs(){
+  const q=(document.getElementById('jq').value||"").toLowerCase(), s=document.getElementById('jstatus').value;
+  const rows=GYRS.getJobs().filter(j=>(!s||j.status===s)&&(!q||(j.title_en+" "+j.advt_no+" "+j.dept).toLowerCase().includes(q)));
+  jobRows.innerHTML=rows.map(j=>`<tr class="border-t"><td class="py-2"><b>${j.title_en}</b><div class="text-xs text-slate-400">${j.advt_no}</div></td><td>${j.dept}</td><td>${j.posts}</td><td>${j.last_date}</td><td class="text-xs">👁 ${j.views||0} / ↗ ${j.clicks||0}</td><td>${statusPill(j.status)}</td>
+  <td><div class="flex flex-wrap gap-1 py-1"><a href="/job-detail/?id=${j.id}" target="_blank" class="px-2 py-1 rounded-lg bg-slate-100 font-bold text-xs">View</a><button onclick="editJob('${j.id}')" class="px-2 py-1 rounded-lg bg-blue-50 text-primary font-bold text-xs">Edit</button><button onclick="dupJob('${j.id}')" class="px-2 py-1 rounded-lg bg-purple-50 text-purple-700 font-bold text-xs">Copy</button><button onclick="cycleStatus('${j.id}')" class="px-2 py-1 rounded-lg bg-amber-50 text-amber-700 font-bold text-xs">Status</button><button onclick="delJob('${j.id}')" class="px-2 py-1 rounded-lg bg-red-50 text-red-700 font-bold text-xs">Delete</button></div></td></tr>`).join("")||"<tr><td colspan=7 class='py-4 text-slate-400'>No jobs found.</td></tr>";
+}
+function renderUsers(){
+  const q=(document.getElementById('uq').value||"").toLowerCase(), b=document.getElementById('ublock').value;
+  const rows=GYRS.getUsers().filter(u=>(!q||(u.name+" "+u.email+" "+(u.district||"")).toLowerCase().includes(q))&&(!b||(b==="blocked"?u.blocked:!u.blocked)));
+  userRows.innerHTML=rows.map(u=>`<tr class="border-t"><td class="py-2 font-bold">${u.name}</td><td class="text-xs">${u.email}<div class="text-slate-400">${u.mobile||""} • ${u.district||"-"}</div></td><td class="text-xs">${u.education||"-"}<div class="text-slate-400">${u.category||""}</div></td><td class="text-xs">${(u.skills||[]).slice(0,3).join(", ")||"-"}</td><td>${(u.saved||[]).length} / ${(u.applied||[]).length}</td><td>${u.role==="admin"?"<span class='text-xs text-slate-400'>admin</span>":u.blocked?"<span class='px-2 py-0.5 rounded-full bg-red-50 text-red-700 text-xs font-bold'>Blocked</span>":"<span class='px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold'>Active</span>"}</td>
+  <td>${u.role!=="admin"?`<div class="flex gap-1 py-1"><button onclick="blockUser('${u.email}')" class="px-2 py-1 rounded-lg bg-amber-50 text-amber-700 font-bold text-xs">${u.blocked?"Unblock":"Block"}</button><button onclick="delUser('${u.email}')" class="px-2 py-1 rounded-lg bg-red-50 text-red-700 font-bold text-xs">Delete</button></div>`:""}</td></tr>`).join("")||"<tr><td colspan=7 class='py-4 text-slate-400'>No users found.</td></tr>";
+}
+function allApps(){
+  const jobs=GYRS.getJobs(), out=[];
+  GYRS.getUsers().filter(u=>u.role!=="admin").forEach(u=>{
+    (u.saved||[]).forEach(id=>{const j=jobs.find(x=>x.id===id); if(j) out.push({user:u.name,email:u.email,job:j.title_en,dept:j.dept,type:"saved",last:j.last_date});});
+    (u.applied||[]).forEach(id=>{const j=jobs.find(x=>x.id===id); if(j) out.push({user:u.name,email:u.email,job:j.title_en,dept:j.dept,type:"applied",last:j.last_date});});
+  });
+  return out;
+}
+function renderApps(){
+  const q=(document.getElementById('aq').value||"").toLowerCase(), t=document.getElementById('atype').value;
+  const rows=allApps().filter(a=>(!t||a.type===t)&&(!q||(a.user+" "+a.job+" "+a.email).toLowerCase().includes(q)));
+  appRows.innerHTML=rows.map(a=>`<tr class="border-t"><td class="py-2"><b>${a.user}</b><div class="text-xs text-slate-400">${a.email}</div></td><td>${a.job}</td><td>${a.dept}</td><td>${a.type==="applied"?"<span class='px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold'>Applied</span>":"<span class='px-2 py-0.5 rounded-full bg-blue-50 text-primary text-xs font-bold'>Saved</span>"}</td><td>${a.last}</td></tr>`).join("")||"<tr><td colspan=5 class='py-4 text-slate-400'>No records.</td></tr>";
+}
+function renderAct(){
+  const a=getAct();
+  actList.innerHTML=a.length?a.map(x=>`<div class="p-3 rounded-xl bg-slate-50 flex justify-between gap-3"><span>${x.msg}</span><span class="text-xs text-slate-400 shrink-0">${x.t}</span></div>`).join(""):"<span class='text-slate-400'>No activity yet.</span>";
+}
+function csv(name, headers, rows){
+  const q=v=>`"${String(v??"").replace(/"/g,'""')}"`;
+  const text=[headers.map(q).join(","),...rows.map(r=>r.map(q).join(","))].join("\n");
+  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob(["\ufeff"+text],{type:"text/csv"})); a.download=name; a.click();
+  logAct("Downloaded report: "+name);
+}
+window.dlJobs=function(filtered){
+  const rows=(filtered?filteredJobs():GYRS.getJobs());
+  csv("gyrs-jobs-report.csv",["Title","Board","Advt No","Posts","Qualification","Age","Salary","Location","Start","Last Date","Exam","Status","Views","Clicks","Apply URL"],rows.map(j=>[j.title_en,j.dept,j.advt_no,j.posts,j.qualification,j.age_min+"-"+j.age_max,j.salary,j.location,j.start_date,j.last_date,j.exam_date||"",j.status,j.views||0,j.clicks||0,j.apply_url]));
+};
+window.dlUsers=function(){
+  csv("gyrs-users-report.csv",["Name","Email","Mobile","Education","Category","District","Skills","Saved Count","Applied Count","Status"],GYRS.getUsers().map(u=>[u.name,u.email,u.mobile||"",u.education||"",u.category||"",u.district||"",(u.skills||[]).join("; "),(u.saved||[]).length,(u.applied||[]).length,u.role==="admin"?"admin":u.blocked?"blocked":"active"]));
+};
+window.dlApps=function(){
+  csv("gyrs-applications-report.csv",["User","Email","Job","Board","Type","Last Date"],allApps().map(a=>[a.user,a.email,a.job,a.dept,a.type,a.last]));
+};
+window.dlUrgent=function(){
+  const now=new Date();
+  const rows=GYRS.getJobs().map(j=>({j,days:Math.ceil((new Date(j.last_date)-now)/864e5)})).filter(x=>x.days>=0&&x.days<=7).sort((a,b)=>a.days-b.days);
+  csv("gyrs-closing-soon-report.csv",["Title","Board","Advt No","Posts","Last Date","Days Left","Apply URL"],rows.map(({j,days})=>[j.title_en,j.dept,j.advt_no,j.posts,j.last_date,days,j.apply_url]));
+};
+function init(){
+  logoutBtn.onclick=()=>{GYRS.setSession(null);location.href="/auth/";};
+  document.querySelectorAll('.navBtn').forEach(b=>b.onclick=()=>show(b.dataset.v));
+  const depts=[...new Set(GYRS.getJobs().map(j=>j.dept))];
+  flt_dept.innerHTML='<option value="">All Boards</option>'+depts.map(d=>`<option>${d}</option>`).join("");
+  ["flt_q","flt_dept","flt_status","flt_close"].forEach(id=>document.getElementById(id).addEventListener("input",renderDash));
+  flt_reset.onclick=()=>{flt_q.value="";flt_dept.value="";flt_status.value="";flt_close.value="";renderDash();};
+  jq.addEventListener("input",renderJobs); jstatus.addEventListener("change",renderJobs);
+  uq.addEventListener("input",renderUsers); ublock.addEventListener("change",renderUsers);
+  aq.addEventListener("input",renderApps); atype.addEventListener("change",renderApps);
+  document.getElementById('exp_jobs').onclick=()=>dlJobs(false);
+  document.getElementById('exp_users').onclick=dlUsers;
+  document.getElementById('exp_apps').onclick=dlApps;
+  document.getElementById('exp_urgent').onclick=dlUrgent;
+  act_clear.onclick=()=>{localStorage.removeItem(ACT_KEY);renderAct();};
+  f_cancel.onclick=()=>{jobForm.reset();f_id.value="";};
+  f_pdffile.addEventListener("change",e=>{
+    const f=e.target.files[0]; if(!f) return;
+    if(f.type!=="application/pdf"){alert("Please choose a PDF file.");return;}
+    f_pdf.value="uploads/notifications/"+f.name;
+  });
+  jobForm.onsubmit=e=>{
     e.preventDefault();
-    const jobs = GYRS.getJobs();
-    const [amin,amax] = (f_age.value||"18-35").split("-").map(x=>parseInt(x)||0);
-    const [fg,fr] = (f_fees.value||"0/0").split("/").map(x=>parseInt(x)||0);
-    const obj = { id: f_id.value || ("job-"+Date.now()), title_en: f_title.value.trim(), title_gu: "", dept: f_dept.value.trim(), advt_no: f_advt.value.trim(), posts: parseInt(f_posts.value)||0, qualification: f_qual.value.trim(), age_min: amin||18, age_max: amax||35, fees_gen: fg, fees_res: fr, salary: f_salary.value.trim(), location: f_loc.value.trim(), start_date: f_start.value, last_date: f_last.value, exam_date: f_exam.value, apply_url: f_apply.value.trim(), pdf_url: f_pdf.value.trim()||"#", skills: f_skills.value.split(",").map(s=>s.trim()).filter(Boolean), notification: f_notif.value.trim(), documents: f_docs.value.split(",").map(s=>s.trim()).filter(Boolean), status: f_status.value, views: 0, clicks: 0 };
-    const i = jobs.findIndex(j=>j.id===obj.id);
-    if(i>=0) jobs[i]=obj; else jobs.push(obj);
-    GYRS.saveJobs(jobs); jobForm.reset(); f_id.value=""; alert("Job saved & live."); renderDash();
+    const jobs=GYRS.getJobs();
+    const [amin,amax]=(f_age.value||"18-35").split("-").map(x=>parseInt(x)||0);
+    const [fg,fr]=(f_fees.value||"0/0").split("/").map(x=>parseInt(x)||0);
+    const isEdit=!!f_id.value;
+    const obj={id:f_id.value||("job-"+Date.now()),title_en:f_title.value.trim(),title_gu:"",dept:f_dept.value.trim(),advt_no:f_advt.value.trim(),posts:parseInt(f_posts.value)||0,qualification:f_qual.value.trim(),age_min:amin||18,age_max:amax||35,fees_gen:fg,fees_res:fr,salary:f_salary.value.trim(),location:f_loc.value.trim(),start_date:f_start.value,last_date:f_last.value,exam_date:f_exam.value,apply_url:f_apply.value.trim(),pdf_url:f_pdf.value.trim()||"#",skills:f_skills.value.split(",").map(s=>s.trim()).filter(Boolean),notification:f_notif.value.trim(),documents:f_docs.value.split(",").map(s=>s.trim()).filter(Boolean),status:f_status.value,views:0,clicks:0};
+    const i=jobs.findIndex(j=>j.id===obj.id);
+    if(i>=0){obj.views=jobs[i].views||0;obj.clicks=jobs[i].clicks||0;jobs[i]=obj;}else jobs.push(obj);
+    GYRS.saveJobs(jobs); jobForm.reset(); f_id.value="";
+    logAct((isEdit?"Edited job: ":"Added job: ")+obj.title_en+" ("+obj.advt_no+")");
+    alert("Job saved & live."); show("dash");
   };
   renderDash();
 }
-function renderDash(){
-  const jobs = GYRS.getJobs(), users = GYRS.getUsers();
-  c_jobs.textContent = jobs.length;
-  c_users.textContent = users.filter(u=>u.role!=="admin").length;
-  c_posts.textContent = jobs.reduce((a,j)=>a+(j.posts||0),0).toLocaleString("en-IN");
-  const now = new Date();
-  c_urgent.textContent = jobs.filter(j=>{ const d=(new Date(j.last_date)-now)/864e5; return d>=0&&d<=7; }).length;
-}
-function renderJobs(){
-  jobRows.innerHTML = GYRS.getJobs().map(j=>`<tr class="border-t"><td class="py-2 font-bold">${j.title_en}</td><td>${j.dept}</td><td>${j.posts}</td><td>${j.last_date}</td><td>${j.status}</td>
-  <td class="flex gap-2 py-2"><button onclick="editJob('${j.id}')" class="px-2.5 py-1 rounded-lg bg-blue-50 text-primary font-bold text-xs">Edit</button><button onclick="delJob('${j.id}')" class="px-2.5 py-1 rounded-lg bg-red-50 text-red-700 font-bold text-xs">Delete</button></td></tr>`).join("");
-}
-function renderUsers(){
-  userRows.innerHTML = GYRS.getUsers().map(u=>`<tr class="border-t"><td class="py-2 font-bold">${u.name}${u.blocked?' (blocked)':''}</td><td>${u.email}</td><td>${u.education||"-"}</td><td>${(u.saved||[]).length}</td><td>${(u.applied||[]).length}</td>
-  <td class="flex gap-2 py-2">${u.role!=="admin"?`<button onclick="blockUser('${u.email}')" class="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 font-bold text-xs">${u.blocked?"Unblock":"Block"}</button><button onclick="delUser('${u.email}')" class="px-2.5 py-1 rounded-lg bg-red-50 text-red-700 font-bold text-xs">Delete</button>`:"<span class='text-xs text-slate-400'>admin</span>"}</td></tr>`).join("");
-}
-window.editJob = id => {
-  const j = GYRS.getJobs().find(x=>x.id===id); if(!j) return;
-  ["dash","jobs","users"].forEach(v=>document.getElementById('v-'+v).classList.add('hidden'));
-  document.getElementById('v-add').classList.remove('hidden');
-  f_id.value=j.id; f_title.value=j.title_en; f_dept.value=j.dept; f_advt.value=j.advt_no; f_posts.value=j.posts; f_qual.value=j.qualification; f_age.value=j.age_min+"-"+j.age_max; f_salary.value=j.salary; f_loc.value=j.location; f_fees.value=j.fees_gen+"/"+j.fees_res; f_start.value=j.start_date||""; f_last.value=j.last_date||""; f_exam.value=j.exam_date||""; f_skills.value=(j.skills||[]).join(", "); f_notif.value=j.notification||""; f_docs.value=(j.documents||[]).join(", "); f_apply.value=j.apply_url; f_pdf.value=j.pdf_url==="#"?"":j.pdf_url; f_status.value=j.status;
+window.editJob=id=>{
+  const j=GYRS.getJobs().find(x=>x.id===id); if(!j) return;
+  show("add");
+  f_id.value=j.id;f_title.value=j.title_en;f_dept.value=j.dept;f_advt.value=j.advt_no;f_posts.value=j.posts;f_qual.value=j.qualification;f_age.value=j.age_min+"-"+j.age_max;f_salary.value=j.salary;f_loc.value=j.location;f_fees.value=j.fees_gen+"/"+j.fees_res;f_start.value=j.start_date||"";f_last.value=j.last_date||"";f_exam.value=j.exam_date||"";f_skills.value=(j.skills||[]).join(", ");f_notif.value=j.notification||"";f_docs.value=(j.documents||[]).join(", ");f_apply.value=j.apply_url;f_pdf.value=j.pdf_url==="#"?"":j.pdf_url;f_status.value=j.status;
   window.scrollTo(0,0);
 };
-window.delJob = id => { if(!confirm("Delete this job?")) return; GYRS.saveJobs(GYRS.getJobs().filter(j=>j.id!==id)); renderJobs(); renderDash(); };
-window.blockUser = email => { const u=GYRS.getUsers(); const i=u.findIndex(x=>x.email===email); u[i].blocked=!u[i].blocked; GYRS.saveUsers(u); renderUsers(); };
-window.delUser = email => { if(!confirm("Delete user "+email+"?")) return; GYRS.saveUsers(GYRS.getUsers().filter(x=>x.email!==email)); renderUsers(); renderDash(); };
+window.dupJob=id=>{
+  const jobs=GYRS.getJobs(); const j=jobs.find(x=>x.id===id); if(!j) return;
+  const c={...j,id:"job-"+Date.now(),title_en:j.title_en+" (Copy)",advt_no:j.advt_no+"-C",status:"draft",views:0,clicks:0,skills:[...(j.skills||[])],documents:[...(j.documents||[])]};
+  jobs.push(c); GYRS.saveJobs(jobs); logAct("Duplicated job: "+j.title_en); renderJobs();
+};
+window.cycleStatus=id=>{
+  const jobs=GYRS.getJobs(); const j=jobs.find(x=>x.id===id); if(!j) return;
+  j.status=j.status==="published"?"draft":j.status==="draft"?"closed":"published";
+  GYRS.saveJobs(jobs); logAct("Status → "+j.status+": "+j.title_en); renderJobs();
+};
+window.delJob=id=>{ if(!confirm("Delete this job?")) return; const j=GYRS.getJobs().find(x=>x.id===id); GYRS.saveJobs(GYRS.getJobs().filter(x=>x.id!==id)); logAct("Deleted job: "+(j?j.title_en:id)); renderJobs(); };
+window.blockUser=email=>{ const u=GYRS.getUsers(); const i=u.findIndex(x=>x.email===email); u[i].blocked=!u[i].blocked; GYRS.saveUsers(u); logAct((u[i].blocked?"Blocked user: ":"Unblocked user: ")+email); renderUsers(); };
+window.delUser=email=>{ if(!confirm("Delete user "+email+"?")) return; GYRS.saveUsers(GYRS.getUsers().filter(x=>x.email!==email)); logAct("Deleted user: "+email); renderUsers(); };
 </script></body></html>
