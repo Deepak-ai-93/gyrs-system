@@ -9,6 +9,8 @@ import base64
 import io
 import os
 
+import fitz  # PyMuPDF — PDF page raster check (kept for tooling)
+from PIL import Image  # slice tall screenshots into exact-fit print pages
 from playwright.sync_api import sync_playwright
 
 BASE = "http://localhost:8000"
@@ -107,19 +109,56 @@ def capture(pw):
     return results
 
 
+SLICE_H = 1950  # source px per full print page; 1950px @1440w prints ~246mm tall
+FIRST_H = 1300  # first chunk shares its page with the section intro (~164mm)
+
+
+def slice_png(path):
+    """Split a tall screenshot into page-sized chunks; returns list of b64 PNGs.
+
+    First chunk is shorter so it shares its page with the section intro;
+    the rest are full-page sized. Nothing is cropped on any side.
+    """
+    img = Image.open(path)
+    W, H = img.size
+    bounds = []
+    first = min(FIRST_H, H)
+    bounds.append((0, first))
+    y = first
+    while y < H:
+        bounds.append((y, min(y + SLICE_H, H)))
+        y += SLICE_H
+    if len(bounds) > 1 and bounds[-1][1] - bounds[-1][0] < 500:
+        bounds[-1] = (max(0, bounds[-1][1] - SLICE_H), bounds[-1][1])  # merge sliver upward
+    out = []
+    for a, b in bounds:
+        buf = io.BytesIO()
+        img.crop((0, a, W, b)).save(buf, format="PNG")
+        out.append(base64.b64encode(buf.getvalue()).decode())
+    return out
+
+
 def build_pdf(shots):
-    def card(title, about, ux, b64):
-        return f"""
-        <div class="page">
+    def section(shot_id, title, about, ux):
+        parts = slice_png(os.path.join(ASSETS, shot_id + ".png"))
+        first = f"""
+        <div class="firstpage">
           <div class="doc-header"><div class="brand">GYRS JOB PORTAL — UI/UX</div><div class="tag">{title}</div></div>
           <h2 class="section-title">{title}</h2>
-          <div class="shot"><img src="data:image/png;base64,{b64}"/></div>
           <div class="about"><b>What this screen does:</b> {about}</div>
           <div class="ux"><b>UX note:</b> {ux}</div>
-          <div class="doc-footer"><span>GYRS Job Portal (job portal only — tender site was UI reference)</span><span>gyrs-system</span></div>
+          <div class="sframe"><img src="data:image/png;base64,{parts[0]}"/></div>
+          <div class="minifoot"><span>GYRS Job Portal — full-screen capture, nothing cropped</span><span>{title} · 1/{len(parts)}</span></div>
         </div>"""
+        rest = "".join(f"""
+        <div class="spage">
+          <div class="minihead"><span>GYRS JOB PORTAL</span><span>{title} · {i + 1}/{len(parts)}</span></div>
+          <div class="sframe"><img src="data:image/png;base64,{b}"/></div>
+          <div class="minifoot"><span>GYRS Job Portal — full-screen capture, nothing cropped</span><span>{title}</span></div>
+        </div>""" for i, b in enumerate(parts[1:], start=1))
+        return first + rest
 
-    pages = "".join(card(t, a, u, b) for _, t, a, u, b in shots)
+    pages = "".join(section(s, t, a, u) for s, t, a, u, _ in shots)
     html = f"""<!DOCTYPE html><html><head><meta charset="utf-8"><style>
       @page {{ size: A4 portrait; margin: 0; }}
       * {{ box-sizing: border-box; margin: 0; padding: 0; }}
@@ -134,8 +173,14 @@ def build_pdf(shots):
       .brand {{ font-weight: 800; font-size: 12px; color: #00288E; }}
       .tag {{ font-size: 9px; font-weight: 700; color: #475569; background: #F1F5F9; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; }}
       .section-title {{ font-size: 16px; color: #00288E; margin-bottom: 8px; break-inside: avoid; break-after: avoid; }}
-      .shot {{ border: 1px solid #CBD5E1; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(15,23,42,.08); break-inside: auto; }}
-      .shot img {{ width: 100%; height: auto; display: block; }}
+      .intro {{ padding: 12mm 14mm 6mm 14mm; break-inside: avoid; page-break-after: avoid; }}
+      .firstpage {{ width: 210mm; height: 297mm; padding: 10mm 14mm 8mm 14mm; page-break-after: always; overflow: hidden; background: #fff; }}
+      .firstpage .sframe {{ margin-top: 6px; }}
+      .spage {{ width: 210mm; height: 297mm; padding: 8mm 14mm 8mm 14mm; page-break-after: always; overflow: hidden; background: #fff; }}
+      .minihead {{ display: flex; justify-content: space-between; align-items: center; font-size: 9px; font-weight: 800; color: #00288E; border-bottom: 2px solid #E2E8F0; padding-bottom: 4px; margin-bottom: 4px; text-transform: uppercase; }}
+      .sframe {{ border: 1px solid #CBD5E1; border-radius: 8px; overflow: hidden; }}
+      .sframe img {{ width: 100%; height: auto; display: block; }}
+      .minifoot {{ display: flex; justify-content: space-between; font-size: 8.5px; color: #64748B; border-top: 1px solid #E2E8F0; padding-top: 4px; margin-top: 4px; }}
       .about {{ margin-top: 8px; font-size: 10px; line-height: 1.5; color: #334155; background: #F8FAFC; border-left: 3px solid #00288E; border-radius: 6px; padding: 7px 10px; break-inside: avoid; }}
       .ux {{ margin-top: 6px; font-size: 10px; line-height: 1.5; color: #334155; background: #FFF7ED; border-left: 3px solid #FD761A; border-radius: 6px; padding: 7px 10px; break-inside: avoid; }}
       .doc-footer {{ margin-top: auto; border-top: 1px solid #E2E8F0; padding-top: 6px; display: flex; justify-content: space-between; font-size: 9px; color: #64748B; }}
