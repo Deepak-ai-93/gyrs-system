@@ -124,7 +124,8 @@ def build_pdf(shots):
       @page {{ size: A4 portrait; margin: 0; }}
       * {{ box-sizing: border-box; margin: 0; padding: 0; }}
       body {{ font-family: Arial, sans-serif; color: #0F172A; -webkit-print-color-adjust: exact; print-color-adjust: exact; }}
-      .page {{ width: 210mm; height: 297mm; padding: 12mm 14mm 10mm 14mm; page-break-after: always; display: flex; flex-direction: column; overflow: hidden; background: #fff; }}
+      .page {{ width: 210mm; min-height: 297mm; padding: 12mm 14mm 10mm 14mm; page-break-after: always; display: flex; flex-direction: column; background: #fff; }}
+      .page.single {{ height: 297mm; overflow: hidden; }}
       .cover {{ background: linear-gradient(135deg,#001453,#00288E 60%,#1565C0); color: #fff; justify-content: center; align-items: center; text-align: center; }}
       .cover h1 {{ font-size: 28px; margin: 14px 0; }}
       .cover p {{ color: #DDE1FF; font-size: 13px; max-width: 150mm; line-height: 1.6; }}
@@ -132,11 +133,11 @@ def build_pdf(shots):
       .doc-header {{ display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #E2E8F0; padding-bottom: 6px; margin-bottom: 8px; }}
       .brand {{ font-weight: 800; font-size: 12px; color: #00288E; }}
       .tag {{ font-size: 9px; font-weight: 700; color: #475569; background: #F1F5F9; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; }}
-      .section-title {{ font-size: 16px; color: #00288E; margin-bottom: 8px; }}
-      .shot {{ border: 1px solid #CBD5E1; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(15,23,42,.08); }}
-      .shot img {{ width: 100%; height: 158mm; object-fit: cover; object-position: top; display: block; }}
-      .about {{ margin-top: 8px; font-size: 10px; line-height: 1.5; color: #334155; background: #F8FAFC; border-left: 3px solid #00288E; border-radius: 6px; padding: 7px 10px; }}
-      .ux {{ margin-top: 6px; font-size: 10px; line-height: 1.5; color: #334155; background: #FFF7ED; border-left: 3px solid #FD761A; border-radius: 6px; padding: 7px 10px; }}
+      .section-title {{ font-size: 16px; color: #00288E; margin-bottom: 8px; break-inside: avoid; break-after: avoid; }}
+      .shot {{ border: 1px solid #CBD5E1; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(15,23,42,.08); break-inside: auto; }}
+      .shot img {{ width: 100%; height: auto; display: block; }}
+      .about {{ margin-top: 8px; font-size: 10px; line-height: 1.5; color: #334155; background: #F8FAFC; border-left: 3px solid #00288E; border-radius: 6px; padding: 7px 10px; break-inside: avoid; }}
+      .ux {{ margin-top: 6px; font-size: 10px; line-height: 1.5; color: #334155; background: #FFF7ED; border-left: 3px solid #FD761A; border-radius: 6px; padding: 7px 10px; break-inside: avoid; }}
       .doc-footer {{ margin-top: auto; border-top: 1px solid #E2E8F0; padding-top: 6px; display: flex; justify-content: space-between; font-size: 9px; color: #64748B; }}
       .lede {{ font-size: 10.5px; color: #475569; line-height: 1.5; margin-bottom: 8px; }}
       .skel {{ background: #F8FAFC; border: 1px dashed #94A3B8; border-radius: 8px; padding: 9px 11px; font-family: Consolas, monospace; font-size: 8.4px; line-height: 1.45; color: #1E293B; white-space: pre; overflow: hidden; margin-bottom: 8px; }}
@@ -144,7 +145,7 @@ def build_pdf(shots):
       .step {{ display: flex; gap: 10px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 9px 12px; font-size: 10px; }}
       .n {{ width: 26px; height: 26px; border-radius: 50%; background: #00288E; color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }}
     </style></head><body>
-      <div class="page"><div class="doc-header"><div class="brand">GYRS JOB PORTAL — BLUEPRINT</div><div class="tag">Page 01 · Layout Skeleton</div></div>
+      <div class="page single"><div class="doc-header"><div class="brand">GYRS JOB PORTAL — BLUEPRINT</div><div class="tag">Page 01 · Layout Skeleton</div></div>
         <h2 class="section-title">Portal Layout Skeleton</h2>
         <p class="lede">Structural blueprint behind every screen in this document. The global shell (sticky header, content zone, footer note) is identical on candidate and admin surfaces, so navigation is never re-learned. Each page below it fills the content zone with its own blocks.</p>
         <div class="skel">GLOBAL SHELL — used by every page
@@ -176,7 +177,7 @@ SKILLS (/skills/)                   | ADMIN (/admin/)
         <div class="doc-footer"><span>GYRS Job Portal — layout skeleton</span><span>job portal only · apply on board sites</span></div>
       </div>
       {pages}
-      <div class="page"><div class="doc-header"><div class="brand">GYRS JOB PORTAL — UI/UX</div><div class="tag">End-to-end flow</div></div>
+      <div class="page single"><div class="doc-header"><div class="brand">GYRS JOB PORTAL — UI/UX</div><div class="tag">End-to-end flow</div></div>
         <h2 class="section-title">How the portal flows together</h2>
         <div class="flow">
           <div class="step"><div class="n">1</div><div><b>Discover</b> — Home search / All Jobs filters surface the right recruitments with vacancies, salary and deadlines visible up front.</div></div>
